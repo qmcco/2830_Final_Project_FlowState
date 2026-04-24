@@ -18,6 +18,7 @@ Example:
 
 ```env
 MONGO_URI=mongodb+srv://<username>:<password>@<cluster-name>.mongodb.net/?appName=FlowState
+MONGO_DB_NAME=FlowState
 PORT=5000
 ```
 
