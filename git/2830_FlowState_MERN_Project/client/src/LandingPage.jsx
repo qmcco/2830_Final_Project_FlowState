@@ -3,7 +3,7 @@ import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 import "./App.css";
 
-export default function LandingPage({ onAuth }) {
+export default function LandingPage({ onAuth, onSwitch }) {
   const [mode, setMode] = useState("login");
 
   const switchMode = (newMode) => {

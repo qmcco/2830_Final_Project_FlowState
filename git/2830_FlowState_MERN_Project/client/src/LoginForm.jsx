@@ -1,17 +1,18 @@
 import { useState } from "react";
 import "./App.css";
 
-export default function LoginForm({ onAuth, onSwitch }) {
-  const [formData, setFormData] = useState({ uname: "", password: "" });
+export default function LoginForm({ onLog, onAuth, onSwitch }) {
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState("");
+  const [apiSuccess, setApiSuccess] = useState("");
 
 
   const validate = () => {
     const errs = {};
-    if (!formData.uname) errs.uname = "Username is required";
-    else if (!/^[a-zA-Z0-9_]{4,32}$/.test(formData.uname))
-      errs.uname = "Enter a valid username";
+    if (!formData.email) errs.email = "Email is required";
+    else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email))
+      errs.email = "Email must be of proper format";
     if (!formData.password) errs.password = "Password is required";
     else if (formData.password.length < 5 || formData.password.length > 64)
       errs.password = "Password must be between 5 and 64 characters";
@@ -33,8 +34,19 @@ export default function LoginForm({ onAuth, onSwitch }) {
     setApiError("");
 
     try {
-      const data = await login(formData.uname, formData.password);
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type':'application/json'
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
+      });
+      const data = await res.json();
       onAuth(data.user);
+      setApiSuccess(data.message);
     } catch (err) {
       setApiError(err.message || "Invalid credentials, try again.");
     } 
@@ -43,20 +55,28 @@ export default function LoginForm({ onAuth, onSwitch }) {
   return (
     <form onSubmit={handleSubmit} noValidate>
       <h2>Welcome</h2>
+      {apiError && (
+        <span>{apiError}</span>
+      )}
+      {apiSuccess && (
+        <span>{apiSuccess}</span>
+      )}
+      
+      
       <div>
-        <label>Username</label>
+        <label>Email </label>
         <input
-          id="uname"
+          id="email"
           type="text"
-          placeholder="username"
-          value={formData.uname}
+          placeholder="email"
+          value={formData.email}
           onChange={handleChange}
-          autoComplete="username"
+          autoComplete="email"
         />
-        {errors.uname && <span> {errors.uname}</span>}
+        {errors.email && <span> {errors.email}</span>}
       </div>
       <div>
-        <label>Password</label>
+        <label>Password </label>
         <input
           type="text"
           id="password"

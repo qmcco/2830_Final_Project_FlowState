@@ -5,8 +5,10 @@ import "./App.css";
 export default function RegisterForm({ onAuth, onSwitch }) {
   const [formData, setFormData] = useState({
     uname: "",
+    name: "",
     password: "",
     confirmPassword: "",
+    email: ""
   });
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState("");
@@ -17,6 +19,12 @@ export default function RegisterForm({ onAuth, onSwitch }) {
     if (!formData.uname) errs.uname = "Username is required";
     else if (!/^.{4,32}$/.test(formData.uname))
       errs.uname = "Username must be between 4 and 32 characters";
+    if (!formData.name) errs.name = "Name is required";
+    else if (!/^.{2,64}$/.test(formData.uname))
+      errs.name = "Name must be between 2 and 64 characters";
+    if (!formData.email) errs.email = "Email is required";
+    else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email))
+      errs.email = "Email must be of proper format";
     if (!formData.password) errs.password = "Password is required";
     else if (formData.password.length < 5 || formData.password.length > 64)
       errs.password = "Password must be between 5 and 64 characters";
@@ -40,12 +48,21 @@ export default function RegisterForm({ onAuth, onSwitch }) {
     setApiError("");
 
     try {
-      //Placeholder call to register user
-      const data = await register({
-        uname: formData.uname,
-        password: formData.password,
+      const res = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type':'application/json'
+        },
+        body: JSON.stringify({
+          username: formData.uname,
+          name: formData.name,
+          email: formData.email,
+          password: formData.password
+        })
       });
-      setApiSuccess("Account created! Signing you in…");
+
+      const data = await res.json();
+      setApiSuccess(data.message);
       setTimeout(() => onAuth(data.user), 1000);
     } catch (err) {
       setApiError(err.message || "Registration failed, try again.");
@@ -73,6 +90,32 @@ export default function RegisterForm({ onAuth, onSwitch }) {
           autoComplete="username"
         />
         {errors.uname && <span> {errors.uname}</span>}
+      </div>
+
+      <div>
+        <label>Name</label>
+        <input
+          id="name"
+          type="text"
+          placeholder="name"
+          value={formData.name}
+          onChange={handleChange}
+          autoComplete="name"
+        />
+        {errors.name && <span> {errors.name}</span>}
+      </div>
+
+      <div>
+        <label>Email</label>
+        <input
+          id="email"
+          type="text"
+          placeholder="email"
+          value={formData.email}
+          onChange={handleChange}
+          autoComplete="email"
+        />
+        {errors.email && <span> {errors.email}</span>}
       </div>
 
       <div>
