@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 
-export default function LoginForm({ onLog, onAuth, onSwitch }) {
+export default function LoginForm({ onAuth, onSwitch }) {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState("");

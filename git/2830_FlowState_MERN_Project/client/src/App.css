@@ -182,3 +182,26 @@
     border-right-color: var(--border);
   }
 }
+
+/*NON DEFAULT CODE*/
+
+.column {
+  padding: 10px;
+  border: 2px solid white;
+  border-radius: 8px;
+  width: 300px;
+}
+
+.tasklist {
+  border: 2px solid white;
+  border-radius: 8px;
+  min-height: 200px;
+}
+
+.task {
+  background: gray;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}

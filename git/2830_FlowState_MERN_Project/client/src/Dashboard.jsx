@@ -1,10 +1,232 @@
 import { useState } from "react";
+import { useEffect } from "react";
+import { DragDropProvider, useDraggable, useDroppable } from "@dnd-kit/react";
 import "./App.css";
 
-export default function LandingPage({ onSwitch }) {
-  return (
-    <div>
-      <h1>Dashboard empty</h1>
-    </div>
-  );
+
+function DraggableItem(props){
+    const {ref} = useDraggable({
+        id: props.id,
+    });
+    return (
+        <div ref={ref} className="task">
+            {props.children}
+        </div>
+    );
+}
+
+function Droppable({id, children}){
+    const {ref} = useDroppable({
+        id,
+    });
+
+    return (
+        <div ref={ref} className="column">
+            {children}
+        </div>
+    );
+}
+
+
+
+export default function Dashboard({ onSwitch }) {
+    const [taskData, setTaskData] = useState({
+         title: "",
+         description: "",
+         startDate: "",
+         dueDate: "",
+         priority: "Low",
+         status: "To Do",
+         assignee: "None",
+         project: "None"
+    });
+    const [children, setChildren] = useState([]);
+    const [parent, setParent] = useState(null);
+    const [target, setTarget] = useState();
+    const [apiError, setApiError] = useState("");
+    const [locations, setLocations] = useState({});
+    const [tasks, setTasks] = useState([]);
+
+    const setTask = async (e) => {
+        e.preventDefault();
+
+        try {
+        const res = await fetch('http://localhost:5000/api/tasks', {
+            method: 'POST',
+            headers: {
+            'Content-Type':'application/json'
+            },
+            body: JSON.stringify({
+                title: taskData.title,
+                description: taskData.description,
+                startDate: taskData.startDate,
+                dueDate: taskData.dueDate,
+                priority: taskData.priority,
+                status: taskData.status,
+                assignee: taskData.assignee,
+                project: taskData.project
+            })
+        });
+        const data = await res.json();
+        if (res.status === 201){
+            console.log(data._id);
+            const newTask = {id: data._id, title: taskData.title};
+            setTasks((prev) => [...prev, newTask]);
+            setLocations((prev) => ({...prev, [data._id]: 'To Do',}));
+            console.log("TASKS: ", tasks);
+        }
+        else {
+            setApiError(data.message);
+        }
+        } catch (err) {
+            setApiError(err.message || "An unexpected error has occured");
+            (err) => { throw err; }
+        } 
+    };
+
+    const deleteOne = async (id) => {
+        try {
+          const res = await fetch(`http://localhost:5000/api/tasks/${id}`, {
+                method: 'DELETE',
+                headers: {
+                'Content-Type':'application/json'
+                }
+            });  
+        } catch (err) {
+            SetApiError("error during delete");
+        }
+    };
+
+    const getTasks = async () => {
+        console.log("GET TASK RUN");
+
+        try {
+            const res = await fetch('http://localhost:5000/api/tasks', {
+                method: 'GET',
+                headers: {
+                'Content-Type':'application/json'
+                }
+            });
+            const data = await res.json();
+            if (res.status !== 500){
+                for(let i=0; i<data.length; i++){
+                   const fetchedTasks = data.map((task) => ({ id: task._id, title: task.title }));
+                    setTasks(fetchedTasks);
+                    const fetchedLocations = {};
+                    data.forEach((task) => {
+                        fetchedLocations[task._id] = task.status;
+                    });
+                    setLocations(fetchedLocations);
+                }
+            }
+            else {
+                SetApiError("error occured when retrieving tasks");
+            }
+        } catch (err) {
+            SetApiError("unable to retrieve tasks");
+        } 
+    };
+
+    const handleChange = (e) => {
+        const { id, value } = e.target;
+        setTaskData((prev) => ({ ...prev, [id]: value }));
+        if (apiError) setApiError("");
+    };
+
+
+    
+    useEffect(() => {
+        getTasks();
+    }, []);
+            
+
+    return (
+        <DragDropProvider
+            onDragEnd={async(event) => {
+                if (event.canceled) return;
+                
+                const { source, target } = event.operation;
+                if (target){
+                    console.log(source.id, target.id);
+                    setLocations((prev) => ({
+                        ...prev,
+                        [source.id]: target.id,
+                    }));
+                try{
+                    const res = await fetch(`http://localhost:5000/api/tasks/${source.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type':'application/json'
+                        },
+                        body: JSON.stringify({
+                            status: target.id
+                        })
+                    });
+                    if (res.status === 404 || res.status === 500){
+                        setApiError("Did not update");
+                    }
+                    else{
+                        const data = await res.json();
+                        console.log(data.title, data.status);
+                        setApiError(""); 
+                    }
+                } catch (err){
+                    setApiError(err.message);
+                }      
+                }
+            }}
+        >
+            <div>
+                <h1>Dashboard</h1>
+                {apiError && (
+                    <span>{apiError}</span>
+                )}
+                <main>
+                    <Droppable key='To Do' id='To Do'>
+                        <p>To-Do</p>
+                        {tasks
+                            .filter((task) => locations[task.id] === 'To Do')
+                            .map((task) => (
+                                <DraggableItem key={task.id} id={task.id}>{task.title}</DraggableItem>
+                            ))}
+                        {!tasks.some((task) => locations[task.id] === 'To Do') && `Drop Here`}
+                        {children}
+                    </Droppable>
+
+                    <Droppable key='In Progress' id='In Progress'>
+                        <p>In Progress</p>
+                        {tasks
+                            .filter((task) => locations[task.id] === 'In Progress')
+                            .map((task) => (
+                                <DraggableItem key={task.id} id={task.id}>{task.title}</DraggableItem>
+                            ))}
+                        {!tasks.some((task) => locations[task.id] === 'In Progress') && `Drop Here`}
+                        {children}
+                    </Droppable>
+
+                    <form onSubmit={setTask} noValidate>
+                        <div className="inputelem">
+                            <label for="title">Task title </label>
+                            <input type="text" id="title" value={taskData.title} onChange={handleChange}/>
+                        </div>
+                        <div className="inputelem">
+                            <label for="description">Task description </label>
+                            <input type="text" id="description" value={taskData.description} onChange={handleChange}/>
+                        </div>
+                        <div className="inputelem">
+                            <label for="startdate">Task start date </label>
+                            <input type="date" id="startDate" value={taskData.startDate} onChange={handleChange}/>
+                        </div>
+                        <div className="inputelem">
+                            <label for="duedate">Task due date </label>
+                            <input type="date" id="dueDate" value={taskData.dueDate} onChange={handleChange}/>
+                        </div>
+                        <div className="submitbutton">
+                            <button type="submit">Create task</button>
+                        </div>
+                    </form>
+                </main>
+            </div>
+        </DragDropProvider>
+    );
 }
