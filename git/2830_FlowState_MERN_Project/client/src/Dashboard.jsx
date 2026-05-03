@@ -29,7 +29,7 @@ function Droppable({id, children}){
 
 
 
-export default function Dashboard({ onSwitch }) {
+export default function Dashboard({ onSwitch, user }) {
     const [taskData, setTaskData] = useState({
          title: "",
          description: "",
@@ -37,7 +37,7 @@ export default function Dashboard({ onSwitch }) {
          dueDate: "",
          priority: "Low",
          status: "To Do",
-         assignee: "None",
+         assignee: user._id,
          project: "None"
     });
     const [children, setChildren] = useState([]);
@@ -46,6 +46,7 @@ export default function Dashboard({ onSwitch }) {
     const [apiError, setApiError] = useState("");
     const [locations, setLocations] = useState({});
     const [tasks, setTasks] = useState([]);
+    const [users, setUsers] = useState([]);
 
     const setTask = async (e) => {
         e.preventDefault();
@@ -71,7 +72,9 @@ export default function Dashboard({ onSwitch }) {
         const data = await res.json();
         if (res.status === 201){
             console.log(data._id);
-            const newTask = {id: data._id, title: taskData.title, description: taskData.description, startDate: taskData.startDate, dueDate: taskData.dueDate};
+            console.log(data.assignee);
+            console.log(taskData.assignee);
+            const newTask = {id: data._id, title: taskData.title, description: taskData.description, startDate: taskData.startDate, dueDate: taskData.dueDate, assignee: taskData.assignee};
             setTasks((prev) => [...prev, newTask]);
             setLocations((prev) => ({...prev, [data._id]: 'To Do',}));
             console.log("TASKS: ", tasks);
@@ -124,7 +127,7 @@ export default function Dashboard({ onSwitch }) {
             });
             const data = await res.json();
             if (res.status !== 500){
-                const fetchedTasks = data.map((task) => ({ id: task._id, title: task.title, description: task.description, startDate: task.startDate, dueDate: task.dueDate }));
+                const fetchedTasks = data.map((task) => ({ id: task._id, title: task.title, description: task.description, startDate: task.startDate, dueDate: task.dueDate, assignee: task.assignee }));
                 setTasks(fetchedTasks);
                 const fetchedLocations = {};
                 data.forEach((task) => {
@@ -151,6 +154,10 @@ export default function Dashboard({ onSwitch }) {
 
     
     useEffect(() => {
+        let curUsers = [{id: user._id, username: user.username}];
+        console.log(user);
+        console.log(user._id);
+        setUsers(curUsers);
         getTasks();
     }, []);
             
@@ -205,7 +212,8 @@ export default function Dashboard({ onSwitch }) {
                                 .map((task) => (
                                     <DraggableItem key={task.id} id={task.id}>
                                         <div className="taskhead">{task.title}<button id={task.id} onClick={deleteOne}>delete</button></div>
-                                        <div className="taskbody"><div>{task.description}</div><div>Due: {task.dueDate}</div></div>
+                                        <div className="taskbody"><div>{task.description}</div><div>Due: {task.dueDate}</div><div>Assigned user: {task.assignee.username}</div></div>
+                                        {task.assignee._id === user._id && <div className="assigned">Assigned to you</div>}
                                     </DraggableItem>
                                 ))}
                             {!tasks.some((task) => locations[task.id] === 'To Do') && `Drop Here`}
@@ -219,7 +227,8 @@ export default function Dashboard({ onSwitch }) {
                                 .map((task) => (
                                     <DraggableItem key={task.id} id={task.id}>
                                         <div className="taskhead">{task.title}<button id={task.id} onClick={deleteOne}>delete</button></div>
-                                        <div className="taskbody"><div>{task.description}</div><div>Due: {task.dueDate}</div></div>
+                                        <div className="taskbody"><div>{task.description}</div><div>Due: {task.dueDate}</div><div>Assigned user: {task.assignee.username}</div></div>
+                                        {task.assignee._id === user._id && <div className="assigned">Assigned to you</div>}
                                     </DraggableItem>
                                 ))}
                             {!tasks.some((task) => locations[task.id] === 'In Progress') && `Drop Here`}
@@ -233,7 +242,8 @@ export default function Dashboard({ onSwitch }) {
                                 .map((task) => (
                                     <DraggableItem key={task.id} id={task.id}>
                                         <div className="taskhead">{task.title}<button id={task.id} onClick={deleteOne}>delete</button></div>
-                                        <div className="taskbody"><div>{task.description}</div><div>Due: {task.dueDate}</div></div>
+                                        <div className="taskbody"><div>{task.description}</div><div>Due: {task.dueDate}</div><div>Assigned user: {task.assignee.username}</div></div>
+                                        {task.assignee._id === user._id && <div className="assigned">Assigned to you</div>}
                                     </DraggableItem>
                                 ))}
                             {!tasks.some((task) => locations[task.id] === 'Done') && `Drop Here`}
@@ -261,6 +271,14 @@ export default function Dashboard({ onSwitch }) {
                             <div className="inputdiv">
                                 <label className="taskinputlabel" for="duedate">Task due date </label>
                                 <input type="date" id="dueDate" value={taskData.dueDate} onChange={handleChange}/>
+                            </div>
+                            <div className="inputdiv">
+                                <label className="taskinputlabel" for="assignee">Task assignee </label>
+                                <select id="assignee" value={taskData.assignee} onChange={handleChange}>
+                                    {users.map((aUser) => (
+                                        <option value={aUser.id}>{aUser.username}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
                         <div className="submitbutton">

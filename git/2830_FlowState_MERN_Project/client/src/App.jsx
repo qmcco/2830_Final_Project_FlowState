@@ -23,7 +23,7 @@ export default function App() {
       {mode === "landing" ? (
         <LandingPage onAuth={handleAuth} onSwitch={() => switchMode("dashboard")} />
       ) : (
-        <Dashboard onSwitch={() => switchMode("landing")} />
+        <Dashboard onSwitch={() => switchMode("landing")} user={user}/>
       )}
     </div>
   );
