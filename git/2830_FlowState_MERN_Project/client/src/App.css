@@ -19,6 +19,9 @@
 }
 
 .form {
+  border: 1px solid #2e303a;
+  border-radius: 8px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -41,6 +44,11 @@
 .inputlabel {
   display: inline-block;
   width: 120px;
+}
+
+.taskinputlabel {
+  display: inline-block;
+  width: 200px;
 }
 
 .column {

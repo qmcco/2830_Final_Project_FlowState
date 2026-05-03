@@ -50,6 +50,7 @@ export default function Dashboard({ onSwitch }) {
     const setTask = async (e) => {
         e.preventDefault();
 
+
         try {
         const res = await fetch('http://localhost:5000/api/tasks', {
             method: 'POST',
@@ -240,25 +241,30 @@ export default function Dashboard({ onSwitch }) {
                         </Droppable>
                     </div>
 
-                    <form onSubmit={setTask} noValidate>
-                        <div className="inputelem">
-                            <label for="title">Task title </label>
-                            <input type="text" id="title" value={taskData.title} onChange={handleChange}/>
-                        </div>
-                        <div className="inputelem">
-                            <label for="description">Task description </label>
-                            <input type="text" id="description" value={taskData.description} onChange={handleChange}/>
-                        </div>
-                        <div className="inputelem">
-                            <label for="startdate">Task start date </label>
-                            <input type="date" id="startDate" value={taskData.startDate} onChange={handleChange}/>
-                        </div>
-                        <div className="inputelem">
-                            <label for="duedate">Task due date </label>
-                            <input type="date" id="dueDate" value={taskData.dueDate} onChange={handleChange}/>
+                    <form className="form" onSubmit={setTask} noValidate>
+                        <div>Create Task</div>
+                        <div className="inputform">
+                            <div className="inputdiv">
+                                <label className="taskinputlabel" for="title">Task title </label>
+                                <input type="text" id="title" value={taskData.title} onChange={handleChange}/>
+                            </div>
+                            <div className="inputdiv">
+                                <label className="taskinputlabel" for="description">Task description </label>
+                                <textarea id="description" value={taskData.description} onChange={handleChange}>
+                                    Task description
+                                </textarea>
+                            </div>
+                            <div className="inputdiv">
+                                <label className="taskinputlabel" for="startdate">Task start date </label>
+                                <input type="date" id="startDate" value={taskData.startDate} onChange={handleChange}/>
+                            </div>
+                            <div className="inputdiv">
+                                <label className="taskinputlabel" for="duedate">Task due date </label>
+                                <input type="date" id="dueDate" value={taskData.dueDate} onChange={handleChange}/>
+                            </div>
                         </div>
                         <div className="submitbutton">
-                            <button type="submit">Create task</button>
+                            <button type="submit">Create Task</button>
                         </div>
                     </form>
                 </main>
