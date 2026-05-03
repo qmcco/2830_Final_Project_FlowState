@@ -84,16 +84,30 @@ export default function Dashboard({ onSwitch }) {
         } 
     };
 
-    const deleteOne = async (id) => {
+    const deleteOne = async (e) => {
+        console.log("DELETE CALL");
         try {
-          const res = await fetch(`http://localhost:5000/api/tasks/${id}`, {
+            console.log(e);
+          const res = await fetch(`http://localhost:5000/api/tasks/${e.target.id}`, {
                 method: 'DELETE',
                 headers: {
                 'Content-Type':'application/json'
                 }
-            });  
+            }); 
+            const data = await res.json();
+           if (data.message === 'Task deleted successfully'){
+                setTasks((prev) => prev.filter((task) => task.id !== e.target.id));
+                setLocations((prev) => {
+                    const updated = { ...prev };
+                    delete updated[e.target.id];
+                    return updated;
+                });
+           } 
+           else {
+            setApiError("error deleting task");
+           }
         } catch (err) {
-            SetApiError("error during delete");
+            setApiError("error during delete");
         }
     };
 
@@ -109,15 +123,13 @@ export default function Dashboard({ onSwitch }) {
             });
             const data = await res.json();
             if (res.status !== 500){
-                for(let i=0; i<data.length; i++){
-                   const fetchedTasks = data.map((task) => ({ id: task._id, title: task.title }));
-                    setTasks(fetchedTasks);
-                    const fetchedLocations = {};
-                    data.forEach((task) => {
-                        fetchedLocations[task._id] = task.status;
-                    });
-                    setLocations(fetchedLocations);
-                }
+                const fetchedTasks = data.map((task) => ({ id: task._id, title: task.title }));
+                setTasks(fetchedTasks);
+                const fetchedLocations = {};
+                data.forEach((task) => {
+                    fetchedLocations[task._id] = task.status;
+                });
+                setLocations(fetchedLocations);
             }
             else {
                 SetApiError("error occured when retrieving tasks");
@@ -126,6 +138,8 @@ export default function Dashboard({ onSwitch }) {
             SetApiError("unable to retrieve tasks");
         } 
     };
+
+
 
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -177,32 +191,45 @@ export default function Dashboard({ onSwitch }) {
             }}
         >
             <div>
-                <h1>Dashboard</h1>
+                <h1 className="test">Dashboard</h1>
                 {apiError && (
                     <span>{apiError}</span>
                 )}
                 <main>
-                    <Droppable key='To Do' id='To Do'>
-                        <p>To-Do</p>
-                        {tasks
-                            .filter((task) => locations[task.id] === 'To Do')
-                            .map((task) => (
-                                <DraggableItem key={task.id} id={task.id}>{task.title}</DraggableItem>
-                            ))}
-                        {!tasks.some((task) => locations[task.id] === 'To Do') && `Drop Here`}
-                        {children}
-                    </Droppable>
+                    <div class="taskboard">
+                        <Droppable key='To Do' id='To Do'>
+                            <p class="columntext">To-Do</p>
+                            {tasks
+                                .filter((task) => locations[task.id] === 'To Do')
+                                .map((task) => (
+                                    <DraggableItem key={task.id} id={task.id}>{task.title}<button id={task.id} onClick={deleteOne}>delete</button></DraggableItem>
+                                ))}
+                            {!tasks.some((task) => locations[task.id] === 'To Do') && `Drop Here`}
+                            {children}
+                        </Droppable>
 
-                    <Droppable key='In Progress' id='In Progress'>
-                        <p>In Progress</p>
-                        {tasks
-                            .filter((task) => locations[task.id] === 'In Progress')
-                            .map((task) => (
-                                <DraggableItem key={task.id} id={task.id}>{task.title}</DraggableItem>
-                            ))}
-                        {!tasks.some((task) => locations[task.id] === 'In Progress') && `Drop Here`}
-                        {children}
-                    </Droppable>
+                        <Droppable key='In Progress' id='In Progress'>
+                            <p class="columntext">In Progress</p>
+                            {tasks
+                                .filter((task) => locations[task.id] === 'In Progress')
+                                .map((task) => (
+                                    <DraggableItem key={task.id} id={task.id}>{task.title}<button id={task.id} onClick={deleteOne}>delete</button></DraggableItem>
+                                ))}
+                            {!tasks.some((task) => locations[task.id] === 'In Progress') && `Drop Here`}
+                            {children}
+                        </Droppable>
+
+                        <Droppable key='Done' id='Done'>
+                            <p class="columntext">Done</p>
+                            {tasks
+                                .filter((task) => locations[task.id] === 'Done')
+                                .map((task) => (
+                                    <DraggableItem key={task.id} id={task.id}>{task.title}<button id={task.id} onClick={deleteOne}>delete</button></DraggableItem>
+                                ))}
+                            {!tasks.some((task) => locations[task.id] === 'Done') && `Drop Here`}
+                            {children}
+                        </Droppable>
+                    </div>
 
                     <form onSubmit={setTask} noValidate>
                         <div className="inputelem">

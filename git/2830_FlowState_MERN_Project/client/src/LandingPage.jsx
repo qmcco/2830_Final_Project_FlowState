@@ -15,9 +15,9 @@ export default function LandingPage({ onAuth, onSwitch }) {
     <div>
       <h1>FlowState</h1>
       <main>
-          <div>
-            <button onClick={() => switchMode("login")}>Sign in</button>
-            <button onClick={() => switchMode("register")}>Create account</button>
+          <div className="landingbar">
+            <button className="landingbutton" onClick={() => switchMode("login")}>Sign in</button>
+            <button className="landingbutton" onClick={() => switchMode("register")}>Create account</button>
           </div>
           <div>
             {mode === "login" ? (

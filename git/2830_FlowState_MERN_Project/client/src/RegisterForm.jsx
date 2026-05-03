@@ -70,8 +70,8 @@ export default function RegisterForm({ onAuth, onSwitch }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
-      <h2>Create account</h2>
+    <form className="form" onSubmit={handleSubmit} noValidate>
+      <h2>Create Account</h2>
       {apiError && (
         <span>{apiError}</span>
       )}
@@ -79,68 +79,70 @@ export default function RegisterForm({ onAuth, onSwitch }) {
         <span>{apiSuccess}</span>
       )}
 
-      <div>
-        <label>Username</label>
-        <input
-          id="uname"
-          type="text"
-          placeholder="Username"
-          value={formData.uname}
-          onChange={handleChange}
-          autoComplete="username"
-        />
-        {errors.uname && <span> {errors.uname}</span>}
-      </div>
+      <div className="inputform">
+        <div>
+          <label className="inputlabel">Username </label>
+          <input
+            id="uname"
+            type="text"
+            placeholder="Username"
+            value={formData.uname}
+            onChange={handleChange}
+            autoComplete="username"
+          />
+          {errors.uname && <span> {errors.uname}</span>}
+        </div>
 
-      <div>
-        <label>Name</label>
-        <input
-          id="name"
-          type="text"
-          placeholder="name"
-          value={formData.name}
-          onChange={handleChange}
-          autoComplete="name"
-        />
-        {errors.name && <span> {errors.name}</span>}
-      </div>
+        <div>
+          <label className="inputlabel">Name </label>
+          <input
+            id="name"
+            type="text"
+            placeholder="Name"
+            value={formData.name}
+            onChange={handleChange}
+            autoComplete="name"
+          />
+          {errors.name && <span> {errors.name}</span>}
+        </div>
 
-      <div>
-        <label>Email</label>
-        <input
-          id="email"
-          type="text"
-          placeholder="email"
-          value={formData.email}
-          onChange={handleChange}
-          autoComplete="email"
-        />
-        {errors.email && <span> {errors.email}</span>}
-      </div>
+        <div>
+          <label className="inputlabel">Email </label>
+          <input
+            id="email"
+            type="text"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            autoComplete="email"
+          />
+          {errors.email && <span> {errors.email}</span>}
+        </div>
 
-      <div>
-        <label>Password</label>
-        <input
-          id="password"
-          type="text"
-          placeholder="Min 5 characters"
-          value={formData.password}
-          onChange={handleChange}
-          autoComplete="new-password"
-        />
-        {errors.password && <span> {errors.password}</span>}
-      </div>
-      <div>
-        <label>Confirm password</label>
-        <input
-          id="confirmPassword"
-          type="text"
-          placeholder="Repeat your password"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          autoComplete="new-password"
-        />
-        {errors.confirmPassword && <span> {errors.confirmPassword}</span>}
+        <div>
+          <label className="inputlabel">Password </label>
+          <input
+            id="password"
+            type="text"
+            placeholder="Min 5 characters"
+            value={formData.password}
+            onChange={handleChange}
+            autoComplete="new-password"
+          />
+          {errors.password && <span> {errors.password}</span>}
+        </div>
+        <div className="inputdiv">
+          <label className="inputlabel">Confirm Password </label>
+          <input
+            id="confirmPassword"
+            type="text"
+            placeholder="Repeat your password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            autoComplete="new-password"
+          />
+          {errors.confirmPassword && <span> {errors.confirmPassword}</span>}
+        </div>
       </div>
       <button type="submit">Create account</button>
     </form>

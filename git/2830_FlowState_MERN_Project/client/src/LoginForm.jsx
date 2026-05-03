@@ -53,7 +53,7 @@ export default function LoginForm({ onAuth, onSwitch }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
+    <form className="form" onSubmit={handleSubmit} noValidate>
       <h2>Welcome</h2>
       {apiError && (
         <span>{apiError}</span>
@@ -62,30 +62,31 @@ export default function LoginForm({ onAuth, onSwitch }) {
         <span>{apiSuccess}</span>
       )}
       
-      
-      <div>
-        <label>Email </label>
-        <input
-          id="email"
-          type="text"
-          placeholder="email"
-          value={formData.email}
-          onChange={handleChange}
-          autoComplete="email"
-        />
-        {errors.email && <span> {errors.email}</span>}
-      </div>
-      <div>
-        <label>Password </label>
-        <input
-          type="text"
-          id="password"
-          placeholder="******"
-          value={formData.password}
-          onChange={handleChange}
-          autoComplete="current-password"
-        />
-        {errors.password && <span> {errors.password}</span>}
+      <div className="inputform">
+        <div>
+          <label className="inputlabel">Email </label>
+          <input
+            id="email"
+            type="text"
+            placeholder="email"
+            value={formData.email}
+            onChange={handleChange}
+            autoComplete="email"
+          />
+          {errors.email && <span> {errors.email}</span>}
+        </div>
+        <div>
+          <label className="inputlabel">Password </label>
+          <input
+            type="text"
+            id="password"
+            placeholder="******"
+            value={formData.password}
+            onChange={handleChange}
+            autoComplete="current-password"
+          />
+          {errors.password && <span> {errors.password}</span>}
+        </div>
       </div>
       <button type="submit">Sign in</button>
     </form>
