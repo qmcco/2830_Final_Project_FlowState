@@ -67,10 +67,31 @@
 }
 
 .task {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
   background: gray;
+  color: black;
   padding: 10px;
   margin-bottom: 10px;
   border-radius: 6px;
   min-height: 50px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.taskhead {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.taskbody {
+  font-size: smaller;
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 3px;
 }

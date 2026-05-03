@@ -70,7 +70,7 @@ export default function Dashboard({ onSwitch }) {
         const data = await res.json();
         if (res.status === 201){
             console.log(data._id);
-            const newTask = {id: data._id, title: taskData.title};
+            const newTask = {id: data._id, title: taskData.title, description: taskData.description, startDate: taskData.startDate, dueDate: taskData.dueDate};
             setTasks((prev) => [...prev, newTask]);
             setLocations((prev) => ({...prev, [data._id]: 'To Do',}));
             console.log("TASKS: ", tasks);
@@ -123,7 +123,7 @@ export default function Dashboard({ onSwitch }) {
             });
             const data = await res.json();
             if (res.status !== 500){
-                const fetchedTasks = data.map((task) => ({ id: task._id, title: task.title }));
+                const fetchedTasks = data.map((task) => ({ id: task._id, title: task.title, description: task.description, startDate: task.startDate, dueDate: task.dueDate }));
                 setTasks(fetchedTasks);
                 const fetchedLocations = {};
                 data.forEach((task) => {
@@ -202,7 +202,10 @@ export default function Dashboard({ onSwitch }) {
                             {tasks
                                 .filter((task) => locations[task.id] === 'To Do')
                                 .map((task) => (
-                                    <DraggableItem key={task.id} id={task.id}>{task.title}<button id={task.id} onClick={deleteOne}>delete</button></DraggableItem>
+                                    <DraggableItem key={task.id} id={task.id}>
+                                        <div className="taskhead">{task.title}<button id={task.id} onClick={deleteOne}>delete</button></div>
+                                        <div className="taskbody"><div>{task.description}</div><div>Due: {task.dueDate}</div></div>
+                                    </DraggableItem>
                                 ))}
                             {!tasks.some((task) => locations[task.id] === 'To Do') && `Drop Here`}
                             {children}
@@ -213,7 +216,10 @@ export default function Dashboard({ onSwitch }) {
                             {tasks
                                 .filter((task) => locations[task.id] === 'In Progress')
                                 .map((task) => (
-                                    <DraggableItem key={task.id} id={task.id}>{task.title}<button id={task.id} onClick={deleteOne}>delete</button></DraggableItem>
+                                    <DraggableItem key={task.id} id={task.id}>
+                                        <div className="taskhead">{task.title}<button id={task.id} onClick={deleteOne}>delete</button></div>
+                                        <div className="taskbody"><div>{task.description}</div><div>Due: {task.dueDate}</div></div>
+                                    </DraggableItem>
                                 ))}
                             {!tasks.some((task) => locations[task.id] === 'In Progress') && `Drop Here`}
                             {children}
@@ -224,7 +230,10 @@ export default function Dashboard({ onSwitch }) {
                             {tasks
                                 .filter((task) => locations[task.id] === 'Done')
                                 .map((task) => (
-                                    <DraggableItem key={task.id} id={task.id}>{task.title}<button id={task.id} onClick={deleteOne}>delete</button></DraggableItem>
+                                    <DraggableItem key={task.id} id={task.id}>
+                                        <div className="taskhead">{task.title}<button id={task.id} onClick={deleteOne}>delete</button></div>
+                                        <div className="taskbody"><div>{task.description}</div><div>Due: {task.dueDate}</div></div>
+                                    </DraggableItem>
                                 ))}
                             {!tasks.some((task) => locations[task.id] === 'Done') && `Drop Here`}
                             {children}
