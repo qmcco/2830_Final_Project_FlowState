@@ -45,6 +45,15 @@ export default function LoginForm({ onAuth, onSwitch }) {
         })
       });
       const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Invalid credentials, try again.");
+      }
+
+      if (!data.user) {
+        throw new Error("Login succeeded, but no user information was returned.");
+      }
+
       onAuth(data.user);
       setApiSuccess(data.message);
     } catch (err) {

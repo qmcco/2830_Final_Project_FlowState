@@ -62,6 +62,15 @@ export default function RegisterForm({ onAuth, onSwitch }) {
       });
 
       const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Registration failed, try again.");
+      }
+
+      if (!data.user) {
+        throw new Error("Registration succeeded, but no user information was returned.");
+      }
+
       setApiSuccess(data.message);
       setTimeout(() => onAuth(data.user), 1000);
     } catch (err) {
