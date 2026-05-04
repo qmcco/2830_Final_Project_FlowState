@@ -41,6 +41,121 @@
   align-items: center;
 }
 
+.dashboard-page {
+  min-height: 100%;
+}
+
+.sidebar {
+  position: fixed;
+  left: 24px;
+  top: 24px;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: clamp(200px, 10vw, 300px);
+  padding: 20px;
+  border: 1px solid #2e303a;
+  border-radius: 8px;
+  background: #1d202b;
+  color: white;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #2e303a;
+}
+
+.user-initials {
+  display:grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #82d4bb;
+  color: #16171d;
+  font-weight: bold;
+}
+
+.user-details {
+  flex: 1;
+}
+
+.user-details h3,
+.sidebar h4,
+.sidebar p {
+  margin: 0;
+}
+
+.user-details p {
+  margin-top: 4px;
+  color: gray;
+  font-size: 0.8rem;
+}
+
+.teams li {
+  padding: 8px 10px;
+  border: 1px solid #2e303a;
+  border-radius: 6px;
+}
+
+.teams p {
+  margin-top: 10px;
+  color: gray;
+}
+
+.create-team{
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid #2e303a;
+}
+
+.create-team button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.team-dialog {
+  width: 450px;
+  padding: 20px;
+  border: 1px solid #2e303a;
+  border-radius: 8px;
+  background: #1d202b;
+  color: white;
+}
+
+.team-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.team-dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.team-dialog-form h3 {
+  margin: 0;
+}
+
+.team-dialog-form input {
+  padding: 8px;
+}
+
+.team-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .inputlabel {
   display: inline-block;
   width: 120px;
@@ -107,4 +222,20 @@
   border: 1px solid black;
   border-radius: 5px;
   padding: 3px;
+}
+
+@media (max-width: 900px) {
+  .dashboard-page {
+    padding: 16px;
+  }
+
+  .sidebar {
+    position: static;
+    width: auto;
+    margin-bottom: 24px;
+  }
+
+  .task-count {
+    margin-top: 0;
+  }
 }

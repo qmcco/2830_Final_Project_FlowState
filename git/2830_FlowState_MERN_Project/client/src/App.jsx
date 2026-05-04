@@ -1,7 +1,6 @@
 import { useState } from "react";
 import LandingPage from "./LandingPage";
 import Dashboard from "./Dashboard";
-import LoginForm from "./LoginForm";
 import "./App.css";
 
 export default function App() {

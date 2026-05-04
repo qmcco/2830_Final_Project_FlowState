@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { DragDropProvider, useDraggable, useDroppable } from "@dnd-kit/react";
 import "./App.css";
 
@@ -27,7 +26,59 @@ function Droppable({id, children}){
     );
 }
 
+function Sidebar({ user }) {
+	const teamDialogRef = useRef(null);
+	const teams = user?.teams || [];
+	const name = user?.name || user?.username || "No name available";
+	const email = user?.email || "No email available";
 
+	const initials = name.split(" ").map(name => name[0]).join("").toUpperCase();
+	const teamNames = teams.map((team) => team?.name || team).filter(Boolean);
+	const createTeam = () => {
+		teamDialogRef.current?.showModal();
+	};
+
+	return (
+		<aside className="sidebar">
+			<div className="user-info">
+				<div className="user-initials">
+					{initials}
+				</div>
+				<div className="user-details">
+					<h3>{name}</h3>
+					<p>{email}</p>
+				</div>
+			</div>
+			<div className="teams">
+				<h4>Teams</h4>
+				{teamNames.length > 0 ? (
+					<ul>
+						{teamNames.map((team, index) => (
+							<li key={index}>{team}</li>
+						))}
+					</ul>
+				) : (
+					<p>No teams yet</p>
+				)}
+			</div>
+			<div className="create-team">
+				<button onClick={createTeam}>Create Team</button>
+			</div>
+			{/* TODO: Add ability to create team */}
+			<dialog ref={teamDialogRef} className="team-dialog" closedby="any">
+				<form method="dialog" className="team-dialog-form">
+					<h3>Create Team</h3>
+					<label for="teamName">Team name</label>
+					<input id="teamName" type="text" placeholder="Team name" />
+					<div className="team-dialog-actions">
+						<button type="submit">Create</button>
+						<button type="submit">Cancel</button>
+					</div>
+				</form>
+			</dialog>
+		</aside>
+	)
+}
 
 export default function Dashboard({ onSwitch, user }) {
     const [taskData, setTaskData] = useState({
@@ -154,6 +205,8 @@ export default function Dashboard({ onSwitch, user }) {
 
     
     useEffect(() => {
+        if (!user) return;
+
         let curUsers = [{id: user._id, username: user.username}];
         console.log(user);
         console.log(user._id);
@@ -198,15 +251,16 @@ export default function Dashboard({ onSwitch, user }) {
                 }
             }}
         >
-            <div>
-                <h1 className="test">Dashboard</h1>
-                {apiError && (
-                    <span>{apiError}</span>
-                )}
-                <main>
-                    <div class="taskboard">
+            <div className="dashboard-page">
+                <Sidebar user={user} />
+                <main className="dashboard-main">
+                    <h1 className="test">Dashboard</h1>
+                    {apiError && (
+                        <span>{apiError}</span>
+                    )}
+                    <div className="taskboard">
                         <Droppable key='To Do' id='To Do'>
-                            <p class="columntext">To-Do</p>
+                            <p className="columntext">To-Do</p>
                             {tasks
                                 .filter((task) => locations[task.id] === 'To Do')
                                 .map((task) => (
@@ -221,7 +275,7 @@ export default function Dashboard({ onSwitch, user }) {
                         </Droppable>
 
                         <Droppable key='In Progress' id='In Progress'>
-                            <p class="columntext">In Progress</p>
+                            <p className="columntext">In Progress</p>
                             {tasks
                                 .filter((task) => locations[task.id] === 'In Progress')
                                 .map((task) => (
@@ -236,7 +290,7 @@ export default function Dashboard({ onSwitch, user }) {
                         </Droppable>
 
                         <Droppable key='Done' id='Done'>
-                            <p class="columntext">Done</p>
+                            <p className="columntext">Done</p>
                             {tasks
                                 .filter((task) => locations[task.id] === 'Done')
                                 .map((task) => (
@@ -252,28 +306,28 @@ export default function Dashboard({ onSwitch, user }) {
                     </div>
 
                     <form className="form" onSubmit={setTask} noValidate>
-                        <div>Create Task</div>
-                        <div className="inputform">
-                            <div className="inputdiv">
-                                <label className="taskinputlabel" for="title">Task title </label>
+                            <div>Create Task</div>
+                            <div className="inputform">
+                                <div className="inputdiv">
+                                <label className="taskinputlabel" htmlFor="title">Task title </label>
                                 <input type="text" id="title" value={taskData.title} onChange={handleChange}/>
                             </div>
                             <div className="inputdiv">
-                                <label className="taskinputlabel" for="description">Task description </label>
+                                <label className="taskinputlabel" htmlFor="description">Task description </label>
                                 <textarea id="description" value={taskData.description} onChange={handleChange}>
                                     Task description
                                 </textarea>
                             </div>
                             <div className="inputdiv">
-                                <label className="taskinputlabel" for="startdate">Task start date </label>
+                                <label className="taskinputlabel" htmlFor="startDate">Task start date </label>
                                 <input type="date" id="startDate" value={taskData.startDate} onChange={handleChange}/>
                             </div>
                             <div className="inputdiv">
-                                <label className="taskinputlabel" for="duedate">Task due date </label>
+                                <label className="taskinputlabel" htmlFor="dueDate">Task due date </label>
                                 <input type="date" id="dueDate" value={taskData.dueDate} onChange={handleChange}/>
                             </div>
                             <div className="inputdiv">
-                                <label className="taskinputlabel" for="assignee">Task assignee </label>
+                                <label className="taskinputlabel" htmlFor="assignee">Task assignee </label>
                                 <select id="assignee" value={taskData.assignee} onChange={handleChange}>
                                     {users.map((aUser) => (
                                         <option value={aUser.id}>{aUser.username}</option>
