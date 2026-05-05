@@ -8,9 +8,7 @@ const taskSchema = new mongoose.Schema({
   priority: { type: String, enum: ['Low', 'Medium', 'High'] },
   status: { type: String, enum: ['To Do', 'In Progress', 'Done'], default: 'To Do' },
   assignee: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  //project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' }
-  //assignee: { type: String },
-  project: { type: String }
+  project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' }
 })
 
 export default mongoose.model('Task', taskSchema)

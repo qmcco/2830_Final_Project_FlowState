@@ -6,7 +6,9 @@ import taskRoutes from './routes/task-route.js';
 import projectRoutes from './routes/project-route.js';
 import authRoutes from './routes/authentication-route.js';
 import dashboardRoutes from './routes/dashboard-route.js';
-
+import userRoutes from './routes/user-route.js';
+import teamRoutes from './routes/team-route.js';
+import authMiddleware from './middleware/auth-middleware.js';
 
 dotenv.config();
 
@@ -20,10 +22,15 @@ app.get('/', (req, res) => {
     res.json({ message: 'FlowState API is running' });
 });
 
-app.use('/api/tasks', taskRoutes);
-app.use('/api/projects', projectRoutes);
+// Public routes (no token required)
 app.use('/api/auth', authRoutes);
-app.use('/api/dashboard', dashboardRoutes);
+
+// Protected routes (token required)
+app.use('/api/tasks', authMiddleware, taskRoutes);
+app.use('/api/projects', authMiddleware, projectRoutes);
+app.use('/api/dashboard', authMiddleware, dashboardRoutes);
+app.use('/api/users', authMiddleware, userRoutes);
+app.use('/api/teams', authMiddleware, teamRoutes);
 
 await db.connect();
 

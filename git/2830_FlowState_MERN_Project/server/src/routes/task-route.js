@@ -1,5 +1,6 @@
 import express from 'express';
 import Task from '../models/Task.js';
+import Project from '../models/Project.js';
 
 const router = express.Router();
 
@@ -68,6 +69,13 @@ router.post('/', async (req, res) => {
             project
         });
 
+        // Add task to project's tasks array
+        if (project) {
+            await Project.findByIdAndUpdate(project, {
+                $addToSet: { tasks: newTask._id }
+            });
+        }
+
         res.status(201).json(newTask);
     } catch (error) {
         res.status(500).json({
@@ -80,18 +88,31 @@ router.post('/', async (req, res) => {
 // UPDATE
 router.put('/:id', async (req, res) => {
     try {
+        const existingTask = await Task.findById(req.params.id);
+
+        if (!existingTask) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        // If project is being changed, update both old and new project's tasks arrays
+        if (req.body.project && req.body.project !== existingTask.project?.toString()) {
+            // Remove from old project
+            if (existingTask.project) {
+                await Project.findByIdAndUpdate(existingTask.project, {
+                    $pull: { tasks: existingTask._id }
+                });
+            }
+            // Add to new project
+            await Project.findByIdAndUpdate(req.body.project, {
+                $addToSet: { tasks: existingTask._id }
+            });
+        }
+
         const updatedTask = await Task.findByIdAndUpdate(
             req.params.id,
             req.body,
-            {
-                new: true,
-                runValidators: true
-            }
+            { new: true, runValidators: true }
         );
-
-        if (!updatedTask) {
-            return res.status(404).json({ message: 'Task not found' });
-        }
 
         res.json(updatedTask);
     } catch (error) {
@@ -109,6 +130,13 @@ router.delete('/:id', async (req, res) => {
 
         if (!deletedTask) {
             return res.status(404).json({ message: 'Task not found' });
+        }
+
+        // Remove task from project's tasks array
+        if (deletedTask.project) {
+            await Project.findByIdAndUpdate(deletedTask.project, {
+                $pull: { tasks: deletedTask._id }
+            });
         }
 
         res.json({
