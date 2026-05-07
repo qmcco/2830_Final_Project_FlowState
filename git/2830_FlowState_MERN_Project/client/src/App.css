@@ -107,6 +107,87 @@
   color: gray;
 }
 
+.team-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.team-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #2e303a;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #252a35 0%, #1d202b 100%);
+  transition: all 0.3s ease;
+}
+
+.team-card:hover {
+  border-color: plum;
+  transform: translateY(-2px);
+}
+
+.team-card-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.team-card-header h5 {
+  margin: 0;
+  font-size: 1.1rem;
+  justify-self: center;
+  align-self: center;
+  text-align: center;
+}
+
+.team-card-description {
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.team-card-badge {
+  padding: 4px 10px;
+  background: plum;
+  color: black;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.team-card-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.team-card-actions button {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border: 1px solid #2e303a;
+  border-radius: 6px;
+  background: #16171d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.team-card-actions button:hover {
+  background: #1d202b;
+}
+
+.team-card-actions button.delete-button {
+  color: #ff6b6b;
+  border-color: #ff6b6b;
+}
+
+.team-card-actions button.delete-button:hover {
+  background: rgba(255, 107, 107, 0.1);
+}
+
 .create-team{
   margin-top: auto;
   padding-top: 16px;
@@ -129,6 +210,7 @@
   border-radius: 8px;
   background: #1d202b;
   color: white;
+  overflow: visible;
 }
 
 .team-dialog::backdrop {

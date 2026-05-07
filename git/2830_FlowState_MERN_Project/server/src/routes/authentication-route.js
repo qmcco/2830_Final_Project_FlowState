@@ -40,15 +40,14 @@ router.post('/register', async (req, res) => {
             { expiresIn: '7d' }
         );
 
+        const user = await User.findById(newUser._id)
+            .select('-password')
+            .populate('teams', 'name description members');
+
         res.status(201).json({
             message: 'User registered successfully',
             token,
-            user: {
-                _id: newUser._id,
-                username: newUser.username,
-                name: newUser.name,
-                email: newUser.email
-            }
+            user: user
         });
     } catch (error) {
         res.status(500).json({
@@ -87,15 +86,14 @@ router.post('/login', async (req, res) => {
             { expiresIn: '7d' }
         );
 
+        const fullUser = await User.findById(user._id)
+            .select('-password')
+            .populate('teams', 'name description members');
+
         res.json({
             message: 'Login successful',
             token,
-            user: {
-                _id: user._id,
-                username: user.username,
-                name: user.name,
-                email: user.email
-            }
+            user: fullUser
         });
     } catch (error) {
         res.status(500).json({

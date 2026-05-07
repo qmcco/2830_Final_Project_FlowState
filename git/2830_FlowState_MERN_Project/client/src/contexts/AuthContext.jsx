@@ -1,5 +1,6 @@
 import { createContext, useEffect, useContext, useCallback, useMemo, useState } from "react";
 import { clearStoredAuth, getStoredUser, setStoredAuth } from "../api";
+import api from "../api";
 
 const AuthContext = createContext();
 
@@ -16,6 +17,20 @@ function AuthProvider({ children }) {
 		setUser(null);
 	}, []);
 
+	const refreshUser = useCallback(async () => {
+		if (!user || !user._id) return;
+		try {
+			const { data } = await api.get(`/users/${user._id}`);
+			const token = localStorage.getItem('userToken');
+			if (data) {
+				setStoredAuth(token, data);
+				setUser(data);
+			}
+		} catch (err) {
+			console.error('Error refreshing user', err);
+		}
+	}, [user]);
+
 	useEffect(() => {
 		window.addEventListener('logout', logout);
 		return () => window.removeEventListener('logout', logout);
@@ -26,7 +41,8 @@ function AuthProvider({ children }) {
 		isAuthenticated: !!user,
 		login,
 		logout,
-	}), [user, login, logout]);
+		refreshUser,
+	}), [user, login, logout, refreshUser]);
 
 	return (
 		<AuthContext.Provider value={value}>

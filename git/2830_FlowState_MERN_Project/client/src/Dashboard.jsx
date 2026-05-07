@@ -1,8 +1,9 @@
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { DragDropProvider, useDraggable, useDroppable } from "@dnd-kit/react";
 import "./App.css";
 import { useAuth } from "./contexts/AuthContext";
 import api from './api';
+import Sidebar from './Sidebar';
 
 
 function DraggableItem(props){
@@ -28,60 +29,6 @@ function Droppable({id, children}){
     );
 }
 
-function Sidebar({ user, onLogout }) {
-	const teamDialogRef = useRef(null);
-	const teams = user?.teams || [];
-	const name = user?.name || user?.username || "No name available";
-	const email = user?.email || "No email available";
-
-	const initials = name.split(" ").map(name => name[0]).join("").toUpperCase();
-	const teamNames = teams.map((team) => team?.name || team).filter(Boolean);
-	const createTeam = () => {
-		teamDialogRef.current?.showModal();
-	};
-
-	return (
-		<aside className="sidebar">
-			<div className="user-info">
-				<div className="user-initials">
-					{initials}
-				</div>
-				<div className="user-details">
-					<h3>{name}</h3>
-					<p>{email}</p>
-				</div>
-			</div>
-			<div className="teams">
-				<h4>Teams</h4>
-				{teamNames.length > 0 ? (
-					<ul>
-						{teamNames.map((team, index) => (
-							<li key={index}>{team}</li>
-						))}
-					</ul>
-				) : (
-					<p>No teams yet</p>
-				)}
-			</div>
-			<div className="create-team">
-				<button onClick={createTeam}>Create Team</button>
-				<button onClick={onLogout}>Logout</button>
-			</div>
-			{/* TODO: Add ability to create team */}
-			<dialog ref={teamDialogRef} className="team-dialog" closedby="any">
-				<form method="dialog" className="team-dialog-form">
-					<h3>Create Team</h3>
-					<label htmlFor="teamName">Team name</label>
-					<input id="teamName" type="text" placeholder="Team name" />
-					<div className="team-dialog-actions">
-						<button type="submit">Create</button>
-						<button type="submit">Cancel</button>
-					</div>
-				</form>
-			</dialog>
-		</aside>
-	)
-}
 
 export default function Dashboard() {
 	const { logout, user } = useAuth();

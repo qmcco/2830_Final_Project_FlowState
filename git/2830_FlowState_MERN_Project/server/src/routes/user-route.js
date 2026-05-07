@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
     try {
         const users = await User.find()
             .select('-password')
-            .populate('teams', 'name description');
+            .populate('teams', 'name description members');
 
         res.json(users);
     } catch (error) {
@@ -25,7 +25,7 @@ router.get('/:id', async (req, res) => {
     try {
         const user = await User.findById(req.params.id)
             .select('-password')
-            .populate('teams', 'name description');
+            .populate('teams', 'name description members');
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });

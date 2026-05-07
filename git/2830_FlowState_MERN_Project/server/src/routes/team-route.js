@@ -57,7 +57,10 @@ router.post('/', async (req, res) => {
             );
         }
 
-        res.status(201).json(newTeam);
+        const team = await Team.findById(newTeam._id)
+            .populate('members', 'username email');
+
+        res.status(201).json(team);
     } catch (error) {
         res.status(500).json({
             message: 'Error creating team',
