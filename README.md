@@ -12,14 +12,14 @@ FlowState is a collaborative task and project management web application that al
 
 1. Open the server folder.
 2. Create a file named .env.
-3. Copy values from .env.example and fill in your MongoDB connection URI.
+3. Copy values from .env.example and fill in your MongoDB connection URI and add a JWT Secret.
 
 Example:
 
 ```env
 MONGO_URI=mongodb+srv://<username>:<password>@<cluster-name>.mongodb.net/?appName=FlowState
-MONGO_DB_NAME=FlowState
 PORT=5000
+JWT_SECRET=jwt_secret_key
 ```
 
 ## Install Dependencies
