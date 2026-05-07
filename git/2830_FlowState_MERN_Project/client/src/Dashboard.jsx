@@ -40,7 +40,7 @@ export default function Dashboard() {
 		priority: "Low",
 		status: "To Do",
 		assignee: user?._id,
-		project: ""
+		team: "None"
     });
     const [children, setChildren] = useState([]);
     const [parent, setParent] = useState(null);
@@ -52,7 +52,10 @@ export default function Dashboard() {
 
     const setTask = async (e) => {
         e.preventDefault();
-
+        if (taskData.team === "None"){
+            setApiError("You must have a team selected to create this task");
+            return;
+        }
 
         try {
             const payload = {
@@ -63,10 +66,11 @@ export default function Dashboard() {
                 priority: taskData.priority,
                 status: taskData.status,
                 assignee: taskData.assignee,
+                team: taskData.team
             };
 
-            if (taskData.project) {
-                payload.project = taskData.project;
+            if (taskData.team) {
+                payload.team = taskData.team;
             }
 
             const { data } = await api.post("/tasks", payload);
@@ -74,7 +78,7 @@ export default function Dashboard() {
 			console.log(data._id);
 			console.log(data.assignee);
 			console.log(taskData.assignee);
-			const newTask = {id: data._id, title: taskData.title, description: data.description, startDate: data.startDate, dueDate: data.dueDate, assignee: data.assignee};
+			const newTask = {id: data._id, title: taskData.title, description: data.description, startDate: data.startDate, dueDate: data.dueDate, assignee: data.assignee, team: data.team};
 			setTasks((prev) => [...prev, newTask]);
 			setLocations((prev) => ({...prev, [data._id]: 'To Do',}));
 			console.log("TASKS: ", tasks);
@@ -116,9 +120,18 @@ export default function Dashboard() {
 
 			try {
 				const { data } = await api.get("/tasks");
+                console.log(data);
 				if (data.status !== 500){
-					const fetchedTasks = data.map((task) => ({ id: task._id, title: task.title, description: task.description, startDate: task.startDate, dueDate: task.dueDate, assignee: task.assignee }));
-					setTasks(fetchedTasks);
+                    const fetchedTasks = data.map((task) => ({ id: task._id, title: task.title, description: task.description, startDate: task.startDate, dueDate: task.dueDate, assignee: task.assignee, team: task.team }));
+                    const reducedTasks = fetchedTasks.reduce((acc, cur) => {
+                        console.log("CUR", cur.id);
+                        console.log("USER", user);
+                        if (user.teams.some(team => team._id === cur.team._id)){
+                            acc.push(cur);
+                        }
+                        return acc;
+                    }, []);
+					setTasks(reducedTasks);
 					const fetchedLocations = {};
 					data.forEach((task) => {
 						fetchedLocations[task._id] = task.status;
@@ -187,7 +200,10 @@ export default function Dashboard() {
                                 .map((task) => (
                                     <DraggableItem key={task.id} id={task.id}>
                                         <div className="taskhead">{task.title}<button id={task.id} onClick={deleteOne}>delete</button></div>
-                                        <div className="taskbody"><div>{task.description}</div><div>Due: {task.dueDate}</div><div>Assigned user: {task.assignee.username}</div></div>
+                                        <div className="taskbody"><div>{task.description}</div>
+                                        <div>Due: {task.dueDate}</div>
+                                        <div>Team: {task.team.name}</div>
+                                        <div>Assigned user: {task.assignee.username}</div></div>
                                         {task.assignee._id === user._id && <div className="assigned">Assigned to you</div>}
                                     </DraggableItem>
                                 ))}
@@ -202,7 +218,10 @@ export default function Dashboard() {
                                 .map((task) => (
                                     <DraggableItem key={task.id} id={task.id}>
                                         <div className="taskhead">{task.title}<button id={task.id} onClick={deleteOne}>delete</button></div>
-                                        <div className="taskbody"><div>{task.description}</div><div>Due: {task.dueDate}</div><div>Assigned user: {task.assignee.username}</div></div>
+                                        <div className="taskbody"><div>{task.description}</div>
+                                        <div>Due: {task.dueDate}</div>
+                                        <div>Team: {task.team.name}</div>
+                                        <div>Assigned user: {task.assignee.username}</div></div>
                                         {task.assignee._id === user._id && <div className="assigned">Assigned to you</div>}
                                     </DraggableItem>
                                 ))}
@@ -217,7 +236,10 @@ export default function Dashboard() {
                                 .map((task) => (
                                     <DraggableItem key={task.id} id={task.id}>
                                         <div className="taskhead">{task.title}<button id={task.id} onClick={deleteOne}>delete</button></div>
-                                        <div className="taskbody"><div>{task.description}</div><div>Due: {task.dueDate}</div><div>Assigned user: {task.assignee.username}</div></div>
+                                        <div className="taskbody"><div>{task.description}</div>
+                                        <div>Due: {task.dueDate}</div>
+                                        <div>Team: {task.team.name}</div>
+                                        <div>Assigned user: {task.assignee.username}</div></div>
                                         {task.assignee._id === user._id && <div className="assigned">Assigned to you</div>}
                                     </DraggableItem>
                                 ))}
@@ -252,6 +274,15 @@ export default function Dashboard() {
                                 <select id="assignee" value={taskData.assignee} onChange={handleChange}>
                                     {users.map((aUser) => (
                                         <option value={aUser.id}>{aUser.username}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="inputdiv">
+                                <label className="taskinputlabel" htmlFor="team">Task team </label>
+                                <select id="team" value={taskData.team} onChange={handleChange}>
+                                    <option value="None">None</option>
+                                    {user.teams.map((team) => (
+                                        <option value={team._id}>{team.name}</option>
                                     ))}
                                 </select>
                             </div>

@@ -1,6 +1,6 @@
 import express from 'express';
 import Task from '../models/Task.js';
-import Project from '../models/Project.js';
+import Team from '../models/Team.js';
 
 const router = express.Router();
 
@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
     try {
         const tasks = await Task.find()
             .populate('assignee', 'username email')
-            .populate('project', 'name');
+            .populate('team', 'name');
 
         res.json(tasks);
     } catch (error) {
@@ -25,7 +25,7 @@ router.get('/:id', async (req, res) => {
     try {
         const task = await Task.findById(req.params.id)
             .populate('assignee', 'username email')
-            .populate('project', 'name');
+            .populate('team', 'name');
 
         if (!task) {
             return res.status(404).json({ message: 'Task not found' });
@@ -51,7 +51,7 @@ router.post('/', async (req, res) => {
             priority,
             status,
             assignee,
-            project
+            team
         } = req.body;
 
         if (!title) {
@@ -66,19 +66,19 @@ router.post('/', async (req, res) => {
             priority,
             status,
             assignee,
-            project
+            team
         });
 
-        // Add task to project's tasks array
-        if (project) {
-            await Project.findByIdAndUpdate(project, {
+        // Add task to team's tasks array
+        if (team) {
+            await Team.findByIdAndUpdate(team, {
                 $addToSet: { tasks: newTask._id }
             });
         }
 
         const populatedTask = await Task.findById(newTask._id)
             .populate('assignee', 'username email')
-            .populate('project', 'name');
+            .populate('team', 'name');
 
         res.status(201).json(populatedTask);
     } catch (error) {
@@ -98,16 +98,16 @@ router.put('/:id', async (req, res) => {
             return res.status(404).json({ message: 'Task not found' });
         }
 
-        // If project is being changed, update both old and new project's tasks arrays
-        if (req.body.project && req.body.project !== existingTask.project?.toString()) {
-            // Remove from old project
-            if (existingTask.project) {
-                await Project.findByIdAndUpdate(existingTask.project, {
+        // If team is being changed, update both old and new team's tasks arrays
+        if (req.body.team && req.body.team !== existingTask.team?.toString()) {
+            // Remove from old team
+            if (existingTask.team) {
+                await Team.findByIdAndUpdate(existingTask.team, {
                     $pull: { tasks: existingTask._id }
                 });
             }
-            // Add to new project
-            await Project.findByIdAndUpdate(req.body.project, {
+            // Add to new team
+            await Team.findByIdAndUpdate(req.body.team, {
                 $addToSet: { tasks: existingTask._id }
             });
         }
@@ -117,7 +117,7 @@ router.put('/:id', async (req, res) => {
             req.body,
             { new: true, runValidators: true }
         ).populate('assignee', 'username email')
-        .populate('project', 'name');
+        .populate('team', 'name');
 
         res.json(updatedTask);
     } catch (error) {
@@ -137,9 +137,9 @@ router.delete('/:id', async (req, res) => {
             return res.status(404).json({ message: 'Task not found' });
         }
 
-        // Remove task from project's tasks array
-        if (deletedTask.project) {
-            await Project.findByIdAndUpdate(deletedTask.project, {
+        // Remove task from team's tasks array
+        if (deletedTask.team) {
+            await Team.findByIdAndUpdate(deletedTask.team, {
                 $pull: { tasks: deletedTask._id }
             });
         }
