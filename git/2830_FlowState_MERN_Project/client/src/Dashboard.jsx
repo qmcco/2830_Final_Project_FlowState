@@ -122,15 +122,33 @@ export default function Dashboard() {
     };
 
     const handleChange = (e) => {
+        console.log("TESTTTT", e.target.value);
         const { id, value } = e.target;
         setTaskData((prev) => ({ ...prev, [id]: value }));
         if (apiError) setApiError("");
     };
 
-
+    
     
     useEffect(() => {
         if (!user) return;
+
+        const getUsers = async () => {
+            console.log("GET USER RUN");
+            try {
+                const { data } = await api.get("/users");
+                console.log("USER DAT", data);
+                if (data.status !== 500){
+                    const fetchedUsers = data.map((aUser) => ({id: aUser._id, username: aUser.username}));
+                    setUsers(fetchedUsers);
+                }
+                else {
+					setApiError("error occured when retrieving users");
+				}
+            } catch (err) {
+                setApiError(err.message || "error getting users");
+            }
+        };
 
 		const getTasks = async () => {
 			console.log("GET TASK RUN");
@@ -141,9 +159,9 @@ export default function Dashboard() {
 				if (data.status !== 500){
                     const fetchedTasks = data.map((task) => ({ id: task._id, title: task.title, description: task.description, startDate: task.startDate, dueDate: task.dueDate, assignee: task.assignee, team: task.team }));
                     const reducedTasks = fetchedTasks.reduce((acc, cur) => {
-                        console.log("CUR", cur.id);
+                        console.log("CUR", cur);
                         console.log("USER", user);
-                        if (cur.team === null){
+                        if (cur.team === null || cur.team === undefined){
                             IdDeleteOne(cur.id);
                         }
                         else if (user.teams.some(team => team._id === cur.team._id)){
@@ -169,6 +187,7 @@ export default function Dashboard() {
 
         console.log(user);
         console.log(user._id);
+        getUsers();
         getTasks();
     }, [user]);
 	
@@ -292,9 +311,16 @@ export default function Dashboard() {
                             <div className="inputdiv">
                                 <label className="taskinputlabel" htmlFor="assignee">Task assignee </label>
                                 <select id="assignee" value={taskData.assignee} onChange={handleChange}>
-                                    {users.map((aUser) => (
-                                        <option value={aUser.id}>{aUser.username}</option>
-                                    ))}
+                                    {taskData.team !== "None" && 
+                                        user.teams.find((team) => team._id === taskData.team)
+                                        ?.members.map((aUser) => {
+                                            const curUser = users.find((u) => u.id === aUser);
+                                            return (
+                                                <option value={aUser}>{curUser.username}</option>
+                                            );   
+                                        })
+                                    }
+                                    
                                 </select>
                             </div>
                             <div className="inputdiv">
