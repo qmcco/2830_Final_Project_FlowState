@@ -240,7 +240,7 @@ export default function Dashboard() {
                                     <DraggableItem key={task.id} id={task.id}>
                                         <div className="taskhead">{task.title}<button id={task.id} onClick={deleteOne}>delete</button></div>
                                         <div className="taskbody"><div>{task.description}</div>
-                                        <div>Due: {task.dueDate}</div>
+                                        <div>Due: {task.dueDate.slice(0,10)}</div>
                                         <div>Team: {task.team.name}</div>
                                         <div>Assigned user: {task.assignee.username}</div></div>
                                         {task.assignee._id === user._id && <div className="assigned">Assigned to you</div>}
@@ -258,7 +258,7 @@ export default function Dashboard() {
                                     <DraggableItem key={task.id} id={task.id}>
                                         <div className="taskhead">{task.title}<button id={task.id} onClick={deleteOne}>delete</button></div>
                                         <div className="taskbody"><div>{task.description}</div>
-                                        <div>Due: {task.dueDate}</div>
+                                        <div>Due: {task.dueDate.slice(0,10)}</div>
                                         <div>Team: {task.team.name}</div>
                                         <div>Assigned user: {task.assignee.username}</div></div>
                                         {task.assignee._id === user._id && <div className="assigned">Assigned to you</div>}
@@ -276,7 +276,7 @@ export default function Dashboard() {
                                     <DraggableItem key={task.id} id={task.id}>
                                         <div className="taskhead">{task.title}<button id={task.id} onClick={deleteOne}>delete</button></div>
                                         <div className="taskbody"><div>{task.description}</div>
-                                        <div>Due: {task.dueDate}</div>
+                                        <div>Due: {task.dueDate.slice(0,10)}</div>
                                         <div>Team: {task.team.name}</div>
                                         <div>Assigned user: {task.assignee.username}</div></div>
                                         {task.assignee._id === user._id && <div className="assigned">Assigned to you</div>}
