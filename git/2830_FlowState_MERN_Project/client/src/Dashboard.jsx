@@ -104,6 +104,23 @@ export default function Dashboard() {
         }
     };
 
+    const IdDeleteOne = async (taskId) => {
+        console.log("DELETE CALL");
+        try {
+            console.log(taskId);
+          	await api.delete(`/tasks/${taskId}`);
+
+           	setTasks((prev) => prev.filter((task) => task.id !== taskId));
+			setLocations((prev) => {
+				const updated = { ...prev };
+				delete updated[taskId];
+				return updated;
+			});
+        } catch (err) {
+            setApiError(err.message || "error deleting task");
+        }
+    };
+
     const handleChange = (e) => {
         const { id, value } = e.target;
         setTaskData((prev) => ({ ...prev, [id]: value }));
@@ -126,7 +143,10 @@ export default function Dashboard() {
                     const reducedTasks = fetchedTasks.reduce((acc, cur) => {
                         console.log("CUR", cur.id);
                         console.log("USER", user);
-                        if (user.teams.some(team => team._id === cur.team._id)){
+                        if (cur.team === null){
+                            IdDeleteOne(cur.id);
+                        }
+                        else if (user.teams.some(team => team._id === cur.team._id)){
                             acc.push(cur);
                         }
                         return acc;
