@@ -3,7 +3,7 @@ import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 import "./App.css";
 
-export default function LandingPage({ onAuth, onSwitch }) {
+export default function LandingPage() {
   const [mode, setMode] = useState("login");
 
   const switchMode = (newMode) => {
@@ -21,9 +21,9 @@ export default function LandingPage({ onAuth, onSwitch }) {
           </div>
           <div>
             {mode === "login" ? (
-              <LoginForm onAuth={onAuth} onSwitch={() => switchMode("register")} />
+              <LoginForm />
             ) : (
-              <RegisterForm onAuth={onAuth} onSwitch={() => switchMode("login")} />
+              <RegisterForm />
             )}
           </div>
       </main>

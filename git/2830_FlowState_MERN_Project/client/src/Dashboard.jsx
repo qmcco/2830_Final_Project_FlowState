@@ -1,6 +1,8 @@
 import { useRef, useState, useEffect } from "react";
 import { DragDropProvider, useDraggable, useDroppable } from "@dnd-kit/react";
 import "./App.css";
+import { useAuth } from "./contexts/AuthContext";
+import api from './api';
 
 
 function DraggableItem(props){
@@ -26,7 +28,7 @@ function Droppable({id, children}){
     );
 }
 
-function Sidebar({ user }) {
+function Sidebar({ user, onLogout }) {
 	const teamDialogRef = useRef(null);
 	const teams = user?.teams || [];
 	const name = user?.name || user?.username || "No name available";
@@ -63,12 +65,13 @@ function Sidebar({ user }) {
 			</div>
 			<div className="create-team">
 				<button onClick={createTeam}>Create Team</button>
+				<button onClick={onLogout}>Logout</button>
 			</div>
 			{/* TODO: Add ability to create team */}
 			<dialog ref={teamDialogRef} className="team-dialog" closedby="any">
 				<form method="dialog" className="team-dialog-form">
 					<h3>Create Team</h3>
-					<label for="teamName">Team name</label>
+					<label htmlFor="teamName">Team name</label>
 					<input id="teamName" type="text" placeholder="Team name" />
 					<div className="team-dialog-actions">
 						<button type="submit">Create</button>
@@ -80,16 +83,17 @@ function Sidebar({ user }) {
 	)
 }
 
-export default function Dashboard({ onSwitch, user }) {
+export default function Dashboard() {
+	const { logout, user } = useAuth();
     const [taskData, setTaskData] = useState({
-         title: "",
-         description: "",
-         startDate: "",
-         dueDate: "",
-         priority: "Low",
-         status: "To Do",
-         assignee: user._id,
-         project: "None"
+		title: "",
+		description: "",
+		startDate: "",
+		dueDate: "",
+		priority: "Low",
+		status: "To Do",
+		assignee: user?._id,
+		project: ""
     });
     const [children, setChildren] = useState([]);
     const [parent, setParent] = useState(null);
@@ -97,19 +101,14 @@ export default function Dashboard({ onSwitch, user }) {
     const [apiError, setApiError] = useState("");
     const [locations, setLocations] = useState({});
     const [tasks, setTasks] = useState([]);
-    const [users, setUsers] = useState([]);
+    const [users, setUsers] = useState(user ? [{id: user._id, username: user.username}] : []);
 
     const setTask = async (e) => {
         e.preventDefault();
 
 
         try {
-        const res = await fetch('http://localhost:5000/api/tasks', {
-            method: 'POST',
-            headers: {
-            'Content-Type':'application/json'
-            },
-            body: JSON.stringify({
+            const payload = {
                 title: taskData.title,
                 description: taskData.description,
                 startDate: taskData.startDate,
@@ -117,25 +116,23 @@ export default function Dashboard({ onSwitch, user }) {
                 priority: taskData.priority,
                 status: taskData.status,
                 assignee: taskData.assignee,
-                project: taskData.project
-            })
-        });
-        const data = await res.json();
-        if (res.status === 201){
-            console.log(data._id);
-            console.log(data.assignee);
-            console.log(taskData.assignee);
-            const newTask = {id: data._id, title: taskData.title, description: taskData.description, startDate: taskData.startDate, dueDate: taskData.dueDate, assignee: taskData.assignee};
-            setTasks((prev) => [...prev, newTask]);
-            setLocations((prev) => ({...prev, [data._id]: 'To Do',}));
-            console.log("TASKS: ", tasks);
-        }
-        else {
-            setApiError(data.message);
-        }
+            };
+
+            if (taskData.project) {
+                payload.project = taskData.project;
+            }
+
+            const { data } = await api.post("/tasks", payload);
+
+			console.log(data._id);
+			console.log(data.assignee);
+			console.log(taskData.assignee);
+			const newTask = {id: data._id, title: taskData.title, description: data.description, startDate: data.startDate, dueDate: data.dueDate, assignee: data.assignee};
+			setTasks((prev) => [...prev, newTask]);
+			setLocations((prev) => ({...prev, [data._id]: 'To Do',}));
+			console.log("TASKS: ", tasks);
         } catch (err) {
             setApiError(err.message || "An unexpected error has occured");
-            (err) => { throw err; }
         } 
     };
 
@@ -143,58 +140,18 @@ export default function Dashboard({ onSwitch, user }) {
         console.log("DELETE CALL");
         try {
             console.log(e);
-          const res = await fetch(`http://localhost:5000/api/tasks/${e.target.id}`, {
-                method: 'DELETE',
-                headers: {
-                'Content-Type':'application/json'
-                }
-            }); 
-            const data = await res.json();
-           if (data.message === 'Task deleted successfully'){
-                setTasks((prev) => prev.filter((task) => task.id !== e.target.id));
-                setLocations((prev) => {
-                    const updated = { ...prev };
-                    delete updated[e.target.id];
-                    return updated;
-                });
-           } 
-           else {
-            setApiError("error deleting task");
-           }
+          	await api.delete(`/tasks/${e.target.id}`);
+
+           	setTasks((prev) => prev.filter((task) => task.id !== e.target.id));
+			setLocations((prev) => {
+				const updated = { ...prev };
+				delete updated[e.target.id];
+				return updated;
+			});
         } catch (err) {
-            setApiError("error during delete");
+            setApiError(err.message || "error deleting task");
         }
     };
-
-    const getTasks = async () => {
-        console.log("GET TASK RUN");
-
-        try {
-            const res = await fetch('http://localhost:5000/api/tasks', {
-                method: 'GET',
-                headers: {
-                'Content-Type':'application/json'
-                }
-            });
-            const data = await res.json();
-            if (res.status !== 500){
-                const fetchedTasks = data.map((task) => ({ id: task._id, title: task.title, description: task.description, startDate: task.startDate, dueDate: task.dueDate, assignee: task.assignee }));
-                setTasks(fetchedTasks);
-                const fetchedLocations = {};
-                data.forEach((task) => {
-                    fetchedLocations[task._id] = task.status;
-                });
-                setLocations(fetchedLocations);
-            }
-            else {
-                SetApiError("error occured when retrieving tasks");
-            }
-        } catch (err) {
-            SetApiError("unable to retrieve tasks");
-        } 
-    };
-
-
 
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -207,13 +164,37 @@ export default function Dashboard({ onSwitch, user }) {
     useEffect(() => {
         if (!user) return;
 
-        let curUsers = [{id: user._id, username: user.username}];
+		const getTasks = async () => {
+			console.log("GET TASK RUN");
+
+			try {
+				const { data } = await api.get("/tasks");
+				if (data.status !== 500){
+					const fetchedTasks = data.map((task) => ({ id: task._id, title: task.title, description: task.description, startDate: task.startDate, dueDate: task.dueDate, assignee: task.assignee }));
+					setTasks(fetchedTasks);
+					const fetchedLocations = {};
+					data.forEach((task) => {
+						fetchedLocations[task._id] = task.status;
+					});
+					setLocations(fetchedLocations);
+				}
+				else {
+					setApiError("error occured when retrieving tasks");
+				}
+			} catch (err) {
+				setApiError(err.message || "error occured when retrieving tasks");
+			} 
+    	};
+
+
         console.log(user);
         console.log(user._id);
-        setUsers(curUsers);
         getTasks();
-    }, []);
-            
+    }, [user]);
+	
+	if (!user) {
+		return null;
+	}
 
     return (
         <DragDropProvider
@@ -228,20 +209,13 @@ export default function Dashboard({ onSwitch, user }) {
                         [source.id]: target.id,
                     }));
                 try{
-                    const res = await fetch(`http://localhost:5000/api/tasks/${source.id}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type':'application/json'
-                        },
-                        body: JSON.stringify({
-                            status: target.id
-                        })
-                    });
-                    if (res.status === 404 || res.status === 500){
+                    const { data } = await api.put(`/tasks/${source.id}`, {
+						status: target.id
+					});
+                    if (data.status === 404 || data.status === 500){
                         setApiError("Did not update");
                     }
                     else{
-                        const data = await res.json();
                         console.log(data.title, data.status);
                         setApiError(""); 
                     }
@@ -252,7 +226,7 @@ export default function Dashboard({ onSwitch, user }) {
             }}
         >
             <div className="dashboard-page">
-                <Sidebar user={user} />
+                <Sidebar user={user} onLogout={logout} />
                 <main className="dashboard-main">
                     <h1 className="test">Dashboard</h1>
                     {apiError && (

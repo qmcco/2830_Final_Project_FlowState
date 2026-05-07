@@ -1,28 +1,27 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import LandingPage from "./LandingPage";
 import Dashboard from "./Dashboard";
 import "./App.css";
+import { useAuth } from "./contexts/AuthContext";
 
 export default function App() {
-  const [user, setUser] = useState(null);
-  const [mode, setMode] = useState("landing");
+  const { isAuthenticated } = useAuth();
+  const [mode, setMode] = useState(isAuthenticated ? "dashboard" : "landing");
 
-  const handleAuth = (userData) => {
-    setUser(userData);
-    switchMode("dashboard");
-  };
-
-  const switchMode = (newMode) => {
-    if (newMode === mode) return;
+  const switchMode = useCallback((newMode) => {
     setTimeout(() => {setMode(newMode);}, 200);
-  };
+  }, []);
+
+  useEffect(() => {
+	switchMode(isAuthenticated ? "dashboard" : "landing");
+  }, [isAuthenticated, switchMode])
 
   return (
     <div>
       {mode === "landing" ? (
-        <LandingPage onAuth={handleAuth} onSwitch={() => switchMode("dashboard")} />
+        <LandingPage />
       ) : (
-        <Dashboard onSwitch={() => switchMode("landing")} user={user}/>
+        <Dashboard />
       )}
     </div>
   );

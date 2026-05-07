@@ -76,7 +76,11 @@ router.post('/', async (req, res) => {
             });
         }
 
-        res.status(201).json(newTask);
+        const populatedTask = await Task.findById(newTask._id)
+            .populate('assignee', 'username email')
+            .populate('project', 'name');
+
+        res.status(201).json(populatedTask);
     } catch (error) {
         res.status(500).json({
             message: 'Error creating task',
@@ -112,7 +116,8 @@ router.put('/:id', async (req, res) => {
             req.params.id,
             req.body,
             { new: true, runValidators: true }
-        );
+        ).populate('assignee', 'username email')
+        .populate('project', 'name');
 
         res.json(updatedTask);
     } catch (error) {
