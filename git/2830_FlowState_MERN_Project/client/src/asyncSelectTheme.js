@@ -6,6 +6,10 @@ export const asyncSelectStyles = {
 		backgroundColor: '#2e303a',
 		color: 'white',
 	}),
+	input: (base) => ({
+		...base,
+		color: 'white',
+	}),
 	menu: (base) => ({
 		...base,
 		backgroundColor: '#2e303a',
